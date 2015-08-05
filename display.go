@@ -19,7 +19,7 @@ func displayOutput(c *cli.Context, item interface{}) error {
 
 	switch output {
 	case "json":
-		return writeJSON(item, c.App.Writer)
+		return WriteJSON(item, c.App.Writer)
 	case "text":
 		return writeText(item, c.App.Writer)
 	default:
@@ -27,7 +27,7 @@ func displayOutput(c *cli.Context, item interface{}) error {
 	}
 }
 
-func writeJSON(item interface{}, w io.Writer) error {
+func WriteJSON(item interface{}, w io.Writer) error {
 	b, err := json.Marshal(item)
 	if err != nil {
 		return err

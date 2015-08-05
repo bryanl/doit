@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -77,12 +76,6 @@ func main() {
 			cf := doit.NewConfigFile(argDir, guts)
 			if globalArgs, err := cf.Args(""); err == nil {
 				os.Args = doit.GlobalArgs(os.Args, globalArgs)
-			}
-
-			fmt.Printf("our args: %#v\n", os.Args)
-
-			if cmdArgs, err := cf.Args(""); err == nil {
-				os.Args = doit.CommandArgs(os.Args, cmdArgs)
 			}
 		}
 	}

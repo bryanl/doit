@@ -1,26 +1,11 @@
 package doit
 
-import (
-	"io"
-
-	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
-	"github.com/digitalocean/godo"
-)
-
-func AccountGet(c *cli.Context) {
-	client := NewClient(c, DefaultConfig)
-	err := accountGet(client, c.App.Writer)
+// AccountGet retrieves an account.
+func AccountGet(c DConfig) (interface{}, error) {
+	a, _, err := c.GodoClient().Account.Get()
 	if err != nil {
-		log.WithField("err", err).Fatal("could not display account")
-	}
-}
-
-func accountGet(client *godo.Client, w io.Writer) error {
-	a, _, err := client.Account.Get()
-	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return writeJSON(a, w)
+	return a, nil
 }

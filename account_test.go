@@ -1,15 +1,11 @@
 package doit
 
 import (
-	"bufio"
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"reflect"
+	"errors"
 	"testing"
 
-	"github.com/codegangsta/cli"
 	"github.com/digitalocean/godo"
+	"github.com/stretchr/testify/assert"
 )
 
 var testAccount = &godo.Account{
@@ -20,70 +16,35 @@ var testAccount = &godo.Account{
 }
 
 func TestAccountAction(t *testing.T) {
-	accountDidGet := false
-
-	client := &godo.Client{
-		Account: &AccountServiceMock{
-			GetFn: func() (*godo.Account, *godo.Response, error) {
-				accountDidGet = true
-				return testAccount, nil, nil
+	c := NewMockConfig()
+	c.GodoClientFn = func() *godo.Client {
+		return &godo.Client{
+			Account: &AccountServiceMock{
+				GetFn: func() (*godo.Account, *godo.Response, error) {
+					return testAccount, nil, nil
+				},
 			},
-		},
-	}
-
-	cs := NewTestConfig(client)
-
-	withinTest(cs, nil, func(c *cli.Context) {
-		AccountGet(c)
-		if !accountDidGet {
-			t.Errorf("Action() did not run")
 		}
-	})
+	}
+
+	a, err := AccountGet(c)
+	assert.NoError(t, err)
+	assert.Equal(t, testAccount, a)
 }
 
-func TestAccountGet(t *testing.T) {
-	client := &godo.Client{
-		Account: &AccountServiceMock{
-			GetFn: func() (*godo.Account, *godo.Response, error) {
-				return testAccount, nil, nil
+func TestAccountAction_Error(t *testing.T) {
+	c := NewMockConfig()
+	c.GodoClientFn = func() *godo.Client {
+		return &godo.Client{
+			Account: &AccountServiceMock{
+				GetFn: func() (*godo.Account, *godo.Response, error) {
+					return nil, nil, errors.New("error")
+				},
 			},
-		},
+		}
 	}
 
-	var b bytes.Buffer
-	w := bufio.NewWriter(&b)
-
-	accountGet(client, w)
-	w.Flush()
-
-	var ar godo.Account
-	err := json.Unmarshal(b.Bytes(), &ar)
-	if err != nil {
-		t.Fatalf("AccountGet() can't unmarshal: %v", err)
-	}
-
-	if got, expected := ar, *testAccount; !reflect.DeepEqual(got, expected) {
-		t.Errorf("AccountGet() = %#v; expected %#v", got, expected)
-	}
-}
-
-func TestAccountGet_APIError(t *testing.T) {
-	client := &godo.Client{
-		Account: &AccountServiceMock{
-			GetFn: func() (*godo.Account, *godo.Response, error) {
-				return nil, nil, fmt.Errorf("an error")
-			},
-		},
-	}
-
-	var b bytes.Buffer
-	w := bufio.NewWriter(&b)
-
-	err := accountGet(client, w)
-	w.Flush()
-
-	if err == nil {
-		t.Errorf("AccountGet expected error")
-	}
-
+	a, err := AccountGet(c)
+	assert.Nil(t, a)
+	assert.Error(t, err)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Sirupsen/logrus"
 	"github.com/bryanl/doit"
 	"github.com/codegangsta/cli"
 )
@@ -9,16 +10,15 @@ func accountCommands() cli.Command {
 	return cli.Command{
 		Name:  "account",
 		Usage: "account commands",
-		Subcommands: []cli.Command{
-			accountGet(),
-		},
-	}
-}
+		Action: func(c *cli.Context) {
+			config := doit.NewCLIConfig(c.GlobalString("token"), c.App.Writer)
+			a, err := doit.AccountGet(config)
+			if err != nil {
+				logrus.WithField("err", err).Error("could not display account")
+				return
+			}
 
-func accountGet() cli.Command {
-	return cli.Command{
-		Name:   "get",
-		Usage:  "get account",
-		Action: doit.AccountGet,
+			doit.WriteJSON(a, config.Writer())
+		},
 	}
 }
