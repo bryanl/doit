@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
@@ -31,23 +31,23 @@ func SSH() *cobra.Command {
 	path := filepath.Join(usr.HomeDir, ".ssh", "id_rsa")
 
 	cmdSSH := cmdBuilder(RunSSH, "ssh", "ssh to droplet", writer)
-	addIntFlag(cmdSSH, doit.ArgDropletID, 0, "droplet id")
-	addStringFlag(cmdSSH, doit.ArgDropletName, "", "droplet name")
-	addStringFlag(cmdSSH, doit.ArgSSHUser, "root", "ssh user")
-	addStringFlag(cmdSSH, doit.ArgsSSHKeyPath, path, "path to private ssh key")
-	addIntFlag(cmdSSH, doit.ArgsSSHPort, 22, "port sshd is running on")
+	addIntFlag(cmdSSH, doctl.ArgDropletID, 0, "droplet id")
+	addStringFlag(cmdSSH, doctl.ArgDropletName, "", "droplet name")
+	addStringFlag(cmdSSH, doctl.ArgSSHUser, "root", "ssh user")
+	addStringFlag(cmdSSH, doctl.ArgsSSHKeyPath, path, "path to private ssh key")
+	addIntFlag(cmdSSH, doctl.ArgsSSHPort, 22, "port sshd is running on")
 
 	return cmdSSH
 }
 
 // RunSSH finds a droplet to ssh to given input parameters (name or id).
 func RunSSH(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	id := doit.DoitConfig.GetInt(ns, doit.ArgDropletID)
-	name := doit.DoitConfig.GetString(ns, doit.ArgDropletName)
-	user := doit.DoitConfig.GetString(ns, doit.ArgSSHUser)
-	keyPath := doit.DoitConfig.GetString(ns, doit.ArgsSSHKeyPath)
-	port := doit.DoitConfig.GetInt(ns, doit.ArgsSSHPort)
+	client := doctl.DoctlConfig.GetGodoClient()
+	id := doctl.DoctlConfig.GetInt(ns, doctl.ArgDropletID)
+	name := doctl.DoctlConfig.GetString(ns, doctl.ArgDropletName)
+	user := doctl.DoctlConfig.GetString(ns, doctl.ArgSSHUser)
+	keyPath := doctl.DoctlConfig.GetString(ns, doctl.ArgsSSHKeyPath)
+	port := doctl.DoctlConfig.GetInt(ns, doctl.ArgsSSHPort)
 
 	var droplet *godo.Droplet
 	var err error
@@ -83,10 +83,10 @@ func RunSSH(ns string, out io.Writer) error {
 		return errors.New(sshNoAddress)
 	}
 
-	runner := doit.DoitConfig.SSH(user, publicIP, keyPath, port)
+	runner := doctl.DoctlConfig.SSH(user, publicIP, keyPath, port)
 	return runner.Run()
 
-	// return doit.DoitConfig.SSH(user, publicIP, keyPath, port)
+	// return doctl.DoctlConfig.SSH(user, publicIP, keyPath, port)
 }
 
 func removeEmptyOptions(in []string) []string {

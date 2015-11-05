@@ -3,7 +3,7 @@ package commands
 import (
 	"io"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ func Size() *cobra.Command {
 
 // RunSizeList all sizes.
 func RunSizeList(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 
 	f := func(opt *godo.ListOptions) ([]interface{}, *godo.Response, error) {
 		list, resp, err := client.Sizes.List(opt)
@@ -40,7 +40,7 @@ func RunSizeList(ns string, out io.Writer) error {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(f)
+	si, err := doctl.PaginateResp(f)
 	if err != nil {
 		return err
 	}
@@ -50,5 +50,5 @@ func RunSizeList(ns string, out io.Writer) error {
 		list[i] = si[i].(godo.Size)
 	}
 
-	return doit.DisplayOutput(list, out)
+	return doctl.DisplayOutput(list, out)
 }

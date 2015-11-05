@@ -7,20 +7,20 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 const (
-	configFile = ".doitcfg"
+	configFile = ".doctlcfg"
 )
 
 var (
-	// DoitCmd is the base command.
-	DoitCmd = &cobra.Command{
-		Use: "doit",
+	// DoctlCmd is the base command.
+	DoctlCmd = &cobra.Command{
+		Use: "doctl",
 	}
 
 	// Token holds the global authorization token.
@@ -35,8 +35,8 @@ var (
 func init() {
 	viper.SetConfigType("yaml")
 
-	DoitCmd.PersistentFlags().StringVarP(&Token, "access-token", "t", "", "DigtialOcean API V2 Access Token")
-	DoitCmd.PersistentFlags().StringVarP(&Output, "output", "o", "text", "output formt [text|json]")
+	DoctlCmd.PersistentFlags().StringVarP(&Token, "access-token", "t", "", "DigtialOcean API V2 Access Token")
+	DoctlCmd.PersistentFlags().StringVarP(&Output, "output", "o", "text", "output formt [text|json]")
 }
 
 // LoadConfig loads out configuration.
@@ -60,47 +60,47 @@ func LoadConfig() error {
 func Execute() {
 	initializeConfig()
 	addCommands()
-	DoitCmd.Execute()
+	DoctlCmd.Execute()
 }
 
 // AddCommands adds sub commands to the base command.
 func addCommands() {
-	DoitCmd.AddCommand(Account())
-	DoitCmd.AddCommand(Actions())
-	DoitCmd.AddCommand(Domain())
-	DoitCmd.AddCommand(DropletAction())
-	DoitCmd.AddCommand(Droplet())
-	DoitCmd.AddCommand(FloatingIP())
-	DoitCmd.AddCommand(FloatingIPAction())
-	DoitCmd.AddCommand(Images())
-	DoitCmd.AddCommand(Region())
-	DoitCmd.AddCommand(Size())
-	DoitCmd.AddCommand(SSHKeys())
-	DoitCmd.AddCommand(SSH())
+	DoctlCmd.AddCommand(Account())
+	DoctlCmd.AddCommand(Actions())
+	DoctlCmd.AddCommand(Domain())
+	DoctlCmd.AddCommand(DropletAction())
+	DoctlCmd.AddCommand(Droplet())
+	DoctlCmd.AddCommand(FloatingIP())
+	DoctlCmd.AddCommand(FloatingIPAction())
+	DoctlCmd.AddCommand(Images())
+	DoctlCmd.AddCommand(Region())
+	DoctlCmd.AddCommand(Size())
+	DoctlCmd.AddCommand(SSHKeys())
+	DoctlCmd.AddCommand(SSH())
 }
 
 func initFlags() {
 	viper.SetEnvPrefix("DIGITALOCEAN")
 	viper.BindEnv("access-token", "DIGITALOCEAN_ACCESS_TOKEN")
-	viper.BindPFlag("access-token", DoitCmd.PersistentFlags().Lookup("access-token"))
-	viper.BindPFlag("output", DoitCmd.PersistentFlags().Lookup("output"))
+	viper.BindPFlag("access-token", DoctlCmd.PersistentFlags().Lookup("access-token"))
+	viper.BindPFlag("output", DoctlCmd.PersistentFlags().Lookup("output"))
 }
 
 func loadDefaultSettings() {
 	viper.SetDefault("output", "text")
 }
 
-// InitializeConfig initializes the doit configuration.
+// InitializeConfig initializes the doctl configuration.
 func initializeConfig() {
 	loadDefaultSettings()
 	LoadConfig()
 	initFlags()
 
-	if DoitCmd.PersistentFlags().Lookup("access-token").Changed {
+	if DoctlCmd.PersistentFlags().Lookup("access-token").Changed {
 		viper.Set("access-token", Token)
 	}
 
-	if DoitCmd.PersistentFlags().Lookup("output").Changed {
+	if DoctlCmd.PersistentFlags().Lookup("output").Changed {
 		viper.Set("output", Output)
 	}
 }
@@ -140,7 +140,7 @@ func addStringSliceFlag(cmd *cobra.Command, name string, def []string, desc stri
 }
 
 func flagName(cmd *cobra.Command, name string) string {
-	parentName := doit.NSRoot
+	parentName := doctl.NSRoot
 	if cmd.Parent() != nil {
 		parentName = cmd.Parent().Name()
 	}
@@ -149,7 +149,7 @@ func flagName(cmd *cobra.Command, name string) string {
 }
 
 func cmdNS(cmd *cobra.Command) string {
-	parentName := doit.NSRoot
+	parentName := doctl.NSRoot
 	if cmd.Parent() != nil {
 		parentName = cmd.Parent().Name()
 	}
@@ -186,7 +186,7 @@ func listDroplets(client *godo.Client) ([]godo.Droplet, error) {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(f)
+	si, err := doctl.PaginateResp(f)
 	if err != nil {
 		return nil, err
 	}

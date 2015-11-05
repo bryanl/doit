@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/bryanl/doit/commands"
+	"github.com/digitalocean/doctl/commands"
 )
 
 func init() {

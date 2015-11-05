@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ func TestAccountGet(t *testing.T) {
 	accountDidGet := false
 
 	client := &godo.Client{
-		Account: &doit.AccountServiceMock{
+		Account: &doctl.AccountServiceMock{
 			GetFn: func() (*godo.Account, *godo.Response, error) {
 				accountDidGet = true
 				return testAccount, nil, nil

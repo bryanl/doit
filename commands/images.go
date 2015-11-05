@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
@@ -23,67 +23,67 @@ func Images() *cobra.Command {
 
 	cmdImagesList := cmdBuilder(RunImagesList, "list", "list images", out)
 	cmd.AddCommand(cmdImagesList)
-	addBoolFlag(cmdImagesList, doit.ArgImagePublic, false, "List public images")
+	addBoolFlag(cmdImagesList, doctl.ArgImagePublic, false, "List public images")
 
 	cmdImagesListDistribution := cmdBuilder(RunImagesListDistribution,
 		"list-distribution", "list distribution images", out)
 	cmd.AddCommand(cmdImagesListDistribution)
-	addBoolFlag(cmdImagesListDistribution, doit.ArgImagePublic, false, "List public images")
+	addBoolFlag(cmdImagesListDistribution, doctl.ArgImagePublic, false, "List public images")
 
 	cmdImagesListApplication := cmdBuilder(RunImagesListDistribution,
 		"list-application", "list application images", out)
 	cmd.AddCommand(cmdImagesListApplication)
-	addBoolFlag(cmdImagesListApplication, doit.ArgImagePublic, false, "List public images")
+	addBoolFlag(cmdImagesListApplication, doctl.ArgImagePublic, false, "List public images")
 
 	cmdImagesListUser := cmdBuilder(RunImagesListDistribution,
 		"list-user", "list user images", out)
 	cmd.AddCommand(cmdImagesListUser)
-	addBoolFlag(cmdImagesListUser, doit.ArgImagePublic, false, "List public images")
+	addBoolFlag(cmdImagesListUser, doctl.ArgImagePublic, false, "List public images")
 
 	cmdImagesGet := cmdBuilder(RunImagesGet, "get", "Get image", out)
 	cmd.AddCommand(cmdImagesGet)
-	addStringFlag(cmdImagesGet, doit.ArgImage, "", "Image id")
+	addStringFlag(cmdImagesGet, doctl.ArgImage, "", "Image id")
 
 	cmdImagesUpdate := cmdBuilder(RunImagesUpdate, "update", "Update image", out)
 	cmd.AddCommand(cmdImagesUpdate)
-	addStringFlag(cmdImagesUpdate, doit.ArgImage, "", "Image id")
-	addStringFlag(cmdImagesUpdate, doit.ArgImageName, "", "Image name")
+	addStringFlag(cmdImagesUpdate, doctl.ArgImage, "", "Image id")
+	addStringFlag(cmdImagesUpdate, doctl.ArgImageName, "", "Image name")
 
 	cmdImagesDelete := cmdBuilder(RunImagesDelete, "delete", "Delete image", out)
 	cmd.AddCommand(cmdImagesDelete)
-	addStringFlag(cmdImagesDelete, doit.ArgImageID, "", "Image id")
+	addStringFlag(cmdImagesDelete, doctl.ArgImageID, "", "Image id")
 
 	return cmd
 }
 
 // RunImagesList images.
 func RunImagesList(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 	return listImages(ns, out, client.Images.List)
 }
 
 // RunImagesListDistribution lists distributions that are available.
 func RunImagesListDistribution(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 	return listImages(ns, out, client.Images.ListDistribution)
 }
 
 // RunImagesListApplication lists application iamges.
 func RunImagesListApplication(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 	return listImages(ns, out, client.Images.ListApplication)
 }
 
 // RunImagesListUser lists user images.
 func RunImagesListUser(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 	return listImages(ns, out, client.Images.ListUser)
 }
 
 // RunImagesGet retrieves an image by id or slug.
 func RunImagesGet(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	rawID := doit.DoitConfig.GetString(ns, doit.ArgImage)
+	client := doctl.DoctlConfig.GetGodoClient()
+	rawID := doctl.DoctlConfig.GetString(ns, doctl.ArgImage)
 
 	var err error
 	var image *godo.Image
@@ -101,16 +101,16 @@ func RunImagesGet(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(image, out)
+	return doctl.DisplayOutput(image, out)
 }
 
 // RunImagesUpdate updates an image.
 func RunImagesUpdate(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	id := doit.DoitConfig.GetInt(ns, doit.ArgImageID)
+	client := doctl.DoctlConfig.GetGodoClient()
+	id := doctl.DoctlConfig.GetInt(ns, doctl.ArgImageID)
 
 	req := &godo.ImageUpdateRequest{
-		Name: doit.DoitConfig.GetString(ns, doit.ArgImageName),
+		Name: doctl.DoctlConfig.GetString(ns, doctl.ArgImageName),
 	}
 
 	image, _, err := client.Images.Update(id, req)
@@ -118,13 +118,13 @@ func RunImagesUpdate(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(image, out)
+	return doctl.DisplayOutput(image, out)
 }
 
 // RunImagesDelete deletes an image.
 func RunImagesDelete(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	id := doit.DoitConfig.GetInt(ns, doit.ArgImageID)
+	client := doctl.DoctlConfig.GetGodoClient()
+	id := doctl.DoctlConfig.GetInt(ns, doctl.ArgImageID)
 
 	_, err := client.Images.Delete(id)
 	return err
@@ -133,7 +133,7 @@ func RunImagesDelete(ns string, out io.Writer) error {
 type listFn func(*godo.ListOptions) ([]godo.Image, *godo.Response, error)
 
 func listImages(ns string, out io.Writer, lFn listFn) error {
-	public := doit.DoitConfig.GetBool(ns, doit.ArgImagePublic)
+	public := doctl.DoctlConfig.GetBool(ns, doctl.ArgImagePublic)
 
 	fn := func(opt *godo.ListOptions) ([]interface{}, *godo.Response, error) {
 		list, resp, err := lFn(opt)
@@ -151,7 +151,7 @@ func listImages(ns string, out io.Writer, lFn listFn) error {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(fn)
+	si, err := doctl.PaginateResp(fn)
 	if err != nil {
 		return err
 	}
@@ -161,5 +161,5 @@ func listImages(ns string, out io.Writer, lFn listFn) error {
 		list[i] = si[i].(godo.Image)
 	}
 
-	return doit.DisplayOutput(list, out)
+	return doctl.DisplayOutput(list, out)
 }

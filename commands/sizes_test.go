@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +18,7 @@ func TestSizesList(t *testing.T) {
 	didList := false
 
 	client := &godo.Client{
-		Sizes: &doit.SizesServiceMock{
+		Sizes: &doctl.SizesServiceMock{
 			ListFn: func(opt *godo.ListOptions) ([]godo.Size, *godo.Response, error) {
 				didList = true
 

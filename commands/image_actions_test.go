@@ -4,14 +4,14 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImageActionsGet(t *testing.T) {
 	client := &godo.Client{
-		ImageActions: &doit.ImageActionsServiceMock{
+		ImageActions: &doctl.ImageActionsServiceMock{
 			GetFn: func(imageID, actionID int) (*godo.Action, *godo.Response, error) {
 				assert.Equal(t, imageID, 1)
 				assert.Equal(t, actionID, 2)
@@ -22,8 +22,8 @@ func TestImageActionsGet(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgImageID, 1)
-		c.Set(ns, doit.ArgActionID, 2)
+		c.Set(ns, doctl.ArgImageID, 1)
+		c.Set(ns, doctl.ArgActionID, 2)
 
 		RunImageActionsGet(ns, ioutil.Discard)
 	})
@@ -32,7 +32,7 @@ func TestImageActionsGet(t *testing.T) {
 
 func TestImageActionsTransfer(t *testing.T) {
 	client := &godo.Client{
-		ImageActions: &doit.ImageActionsServiceMock{
+		ImageActions: &doctl.ImageActionsServiceMock{
 			TransferFn: func(imageID int, req *godo.ActionRequest) (*godo.Action, *godo.Response, error) {
 				assert.Equal(t, imageID, 1)
 
@@ -46,8 +46,8 @@ func TestImageActionsTransfer(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgImageID, 1)
-		c.Set(ns, doit.ArgRegionSlug, "dev0")
+		c.Set(ns, doctl.ArgImageID, 1)
+		c.Set(ns, doctl.ArgRegionSlug, "dev0")
 
 		RunImageActionsTransfer(ns, ioutil.Discard)
 	})

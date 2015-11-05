@@ -1,4 +1,4 @@
-package doit
+package doctl
 
 import (
 	"fmt"
@@ -16,11 +16,11 @@ import (
 )
 
 var (
-	// DoitConfig holds the app's current configuration.
-	DoitConfig Config = &LiveConfig{}
+	// DoctlConfig holds the app's current configuration.
+	DoctlConfig Config = &LiveConfig{}
 )
 
-// Config is an interface that represent doit's config.
+// Config is an interface that represent doctl's config.
 type Config interface {
 	GetGodoClient() *godo.Client
 	SSH(user, host, keyPath string, port int) Runner

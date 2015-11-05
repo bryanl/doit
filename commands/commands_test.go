@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/viper"
 )
@@ -43,44 +43,44 @@ var (
 type testFn func(c *TestConfig)
 
 func withTestClient(client *godo.Client, tFn testFn) {
-	ogConfig := doit.DoitConfig
+	ogConfig := doctl.DoctlConfig
 	defer func() {
-		doit.DoitConfig = ogConfig
+		doctl.DoctlConfig = ogConfig
 	}()
 
 	cfg := NewTestConfig(client)
-	doit.DoitConfig = cfg
+	doctl.DoctlConfig = cfg
 
 	tFn(cfg)
 }
 
 type TestConfig struct {
 	Client *godo.Client
-	SSHFn  func(user, host, keyPath string, port int) doit.Runner
+	SSHFn  func(user, host, keyPath string, port int) doctl.Runner
 	v      *viper.Viper
 }
 
 func NewTestConfig(client *godo.Client) *TestConfig {
 	return &TestConfig{
 		Client: client,
-		SSHFn: func(u, h, kp string, p int) doit.Runner {
+		SSHFn: func(u, h, kp string, p int) doctl.Runner {
 			logrus.WithFields(logrus.Fields{
 				"user": u,
 				"host": h,
 			}).Info("ssh")
-			return &doit.MockRunner{}
+			return &doctl.MockRunner{}
 		},
 		v: viper.New(),
 	}
 }
 
-var _ doit.Config = &TestConfig{}
+var _ doctl.Config = &TestConfig{}
 
 func (c *TestConfig) GetGodoClient() *godo.Client {
 	return c.Client
 }
 
-func (c *TestConfig) SSH(user, host, keyPath string, port int) doit.Runner {
+func (c *TestConfig) SSH(user, host, keyPath string, port int) doctl.Runner {
 	return c.SSHFn(user, host, keyPath, port)
 }
 

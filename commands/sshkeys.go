@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
@@ -27,33 +27,33 @@ func SSHKeys() *cobra.Command {
 
 	cmdSSHKeysGet := cmdBuilder(RunKeyGet, "get", "get ssh key", writer, "g")
 	cmd.AddCommand(cmdSSHKeysGet)
-	addStringFlag(cmdSSHKeysGet, doit.ArgKey, "", "Key ID or fingerprint")
+	addStringFlag(cmdSSHKeysGet, doctl.ArgKey, "", "Key ID or fingerprint")
 
 	cmdSSHKeysCreate := cmdBuilder(RunKeyCreate, "create", "create ssh key", writer, "c")
 	cmd.AddCommand(cmdSSHKeysCreate)
-	addStringFlag(cmdSSHKeysCreate, doit.ArgKeyName, "", "Key name")
-	addStringFlag(cmdSSHKeysCreate, doit.ArgKeyPublicKey, "", "Key contents")
+	addStringFlag(cmdSSHKeysCreate, doctl.ArgKeyName, "", "Key name")
+	addStringFlag(cmdSSHKeysCreate, doctl.ArgKeyPublicKey, "", "Key contents")
 
 	cmdSSHKeysImport := cmdBuilder(RunKeyImport, "import", "import ssh key", writer, "i")
 	cmd.AddCommand(cmdSSHKeysImport)
-	addStringFlag(cmdSSHKeysImport, doit.ArgKeyName, "", "Key name")
-	addStringFlag(cmdSSHKeysImport, doit.ArgKeyPublicKeyFile, "", "Public key file")
+	addStringFlag(cmdSSHKeysImport, doctl.ArgKeyName, "", "Key name")
+	addStringFlag(cmdSSHKeysImport, doctl.ArgKeyPublicKeyFile, "", "Public key file")
 
 	cmdSSHKeysDelete := cmdBuilder(RunKeyDelete, "delete", "delete ssh key", writer, "d")
 	cmd.AddCommand(cmdSSHKeysDelete)
-	addStringFlag(cmdSSHKeysDelete, doit.ArgKey, "", "Key ID or fingerprint")
+	addStringFlag(cmdSSHKeysDelete, doctl.ArgKey, "", "Key ID or fingerprint")
 
 	cmdSSHKeysUpdate := cmdBuilder(RunKeyUpdate, "update", "update ssh key", writer, "u")
 	cmd.AddCommand(cmdSSHKeysUpdate)
-	addStringFlag(cmdSSHKeysUpdate, doit.ArgKey, "", "Key ID or fingerprint")
-	addStringFlag(cmdSSHKeysUpdate, doit.ArgKeyName, "", "Key name")
+	addStringFlag(cmdSSHKeysUpdate, doctl.ArgKey, "", "Key ID or fingerprint")
+	addStringFlag(cmdSSHKeysUpdate, doctl.ArgKeyName, "", "Key name")
 
 	return cmd
 }
 
 // RunKeyList lists keys.
 func RunKeyList(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 
 	f := func(opt *godo.ListOptions) ([]interface{}, *godo.Response, error) {
 		list, resp, err := client.Keys.List(opt)
@@ -69,7 +69,7 @@ func RunKeyList(ns string, out io.Writer) error {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(f)
+	si, err := doctl.PaginateResp(f)
 	if err != nil {
 		return err
 	}
@@ -79,13 +79,13 @@ func RunKeyList(ns string, out io.Writer) error {
 		list[i] = si[i].(godo.Key)
 	}
 
-	return doit.DisplayOutput(list, out)
+	return doctl.DisplayOutput(list, out)
 }
 
 // RunKeyGet retrieves a key.
 func RunKeyGet(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	rawKey := doit.DoitConfig.GetString(ns, doit.ArgKey)
+	client := doctl.DoctlConfig.GetGodoClient()
+	rawKey := doctl.DoctlConfig.GetString(ns, doctl.ArgKey)
 
 	var err error
 	var key *godo.Key
@@ -103,16 +103,16 @@ func RunKeyGet(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(key, out)
+	return doctl.DisplayOutput(key, out)
 }
 
 // RunKeyCreate uploads a SSH key.
 func RunKeyCreate(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 
 	kcr := &godo.KeyCreateRequest{
-		Name:      doit.DoitConfig.GetString(ns, doit.ArgKeyName),
-		PublicKey: doit.DoitConfig.GetString(ns, doit.ArgKeyPublicKey),
+		Name:      doctl.DoctlConfig.GetString(ns, doctl.ArgKeyName),
+		PublicKey: doctl.DoctlConfig.GetString(ns, doctl.ArgKeyPublicKey),
 	}
 
 	r, _, err := client.Keys.Create(kcr)
@@ -120,15 +120,15 @@ func RunKeyCreate(ns string, out io.Writer) error {
 		logrus.WithField("err", err).Fatal("could not create key")
 	}
 
-	return doit.DisplayOutput(r, out)
+	return doctl.DisplayOutput(r, out)
 }
 
 // RunKeyImport imports a key from a file
 func RunKeyImport(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 
-	keyPath := doit.DoitConfig.GetString(ns, doit.ArgKeyPublicKeyFile)
-	keyName := doit.DoitConfig.GetString(ns, doit.ArgKeyName)
+	keyPath := doctl.DoctlConfig.GetString(ns, doctl.ArgKeyPublicKeyFile)
+	keyName := doctl.DoctlConfig.GetString(ns, doctl.ArgKeyName)
 
 	keyFile, err := ioutil.ReadFile(keyPath)
 	if err != nil {
@@ -154,13 +154,13 @@ func RunKeyImport(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(r, out)
+	return doctl.DisplayOutput(r, out)
 }
 
 // RunKeyDelete deletes a key.
 func RunKeyDelete(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	rawKey := doit.DoitConfig.GetString(ns, doit.ArgKey)
+	client := doctl.DoctlConfig.GetGodoClient()
+	rawKey := doctl.DoctlConfig.GetString(ns, doctl.ArgKey)
 
 	var err error
 	if i, aerr := strconv.Atoi(rawKey); aerr == nil {
@@ -174,11 +174,11 @@ func RunKeyDelete(ns string, out io.Writer) error {
 
 // RunKeyUpdate updates a key.
 func RunKeyUpdate(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	rawKey := doit.DoitConfig.GetString(ns, doit.ArgKey)
+	client := doctl.DoctlConfig.GetGodoClient()
+	rawKey := doctl.DoctlConfig.GetString(ns, doctl.ArgKey)
 
 	req := &godo.KeyUpdateRequest{
-		Name: doit.DoitConfig.GetString(ns, doit.ArgKeyName),
+		Name: doctl.DoctlConfig.GetString(ns, doctl.ArgKeyName),
 	}
 
 	var err error
@@ -193,5 +193,5 @@ func RunKeyUpdate(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(key, out)
+	return doctl.DisplayOutput(key, out)
 }

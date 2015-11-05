@@ -1,4 +1,4 @@
-package doit
+package doctl
 
 const (
 	// ArgActionID is an action id argument.
