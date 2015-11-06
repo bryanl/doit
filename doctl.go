@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/digitalocean/godo"
 	"github.com/docker/docker/pkg/term"
 	"github.com/spf13/viper"
@@ -89,7 +88,7 @@ func sshConnect(user string, host string, method ssh.AuthMethod) error {
 		ssh.ECHO: 1,
 	}
 
-	if err := session.RequestPty("xterm", termWidth, termHeight, modes); err != nil {
+	if err := session.RequestPty("xterm", termHeight, termWidth, modes); err != nil {
 		return err
 	}
 	if err == nil {
@@ -119,11 +118,6 @@ type sshRunner struct {
 var _ Runner = &sshRunner{}
 
 func (r *sshRunner) Run() error {
-	logrus.WithFields(logrus.Fields{
-		"user": r.user,
-		"host": r.host,
-	}).Info("ssh")
-
 	sshHost := fmt.Sprintf("%s:%d", r.host, r.port)
 
 	// Key Auth
@@ -164,7 +158,6 @@ func (c *LiveConfig) SSH(user, host, keyPath string, port int) Runner {
 		keyPath: keyPath,
 		port:    port,
 	}
-
 }
 
 // Set sets a config key.
