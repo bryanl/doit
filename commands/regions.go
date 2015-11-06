@@ -3,7 +3,7 @@ package commands
 import (
 	"io"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ func Region() *cobra.Command {
 
 // RunRegionList all regions.
 func RunRegionList(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 
 	f := func(opt *godo.ListOptions) ([]interface{}, *godo.Response, error) {
 		list, resp, err := client.Regions.List(opt)
@@ -40,7 +40,7 @@ func RunRegionList(ns string, out io.Writer) error {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(f)
+	si, err := doctl.PaginateResp(f)
 	if err != nil {
 		return err
 	}
@@ -50,5 +50,5 @@ func RunRegionList(ns string, out io.Writer) error {
 		list[i] = si[i].(godo.Region)
 	}
 
-	return doit.DisplayOutput(list, out)
+	return doctl.DisplayOutput(list, out)
 }

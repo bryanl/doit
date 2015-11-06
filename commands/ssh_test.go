@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,13 +18,13 @@ type sshMock struct {
 	isError bool
 }
 
-func (s *sshMock) cmd() func(u, h, kp string, p int) doit.Runner {
-	return func(u, h, kp string, p int) doit.Runner {
+func (s *sshMock) cmd() func(u, h, kp string, p int) doctl.Runner {
+	return func(u, h, kp string, p int) doctl.Runner {
 		s.didRun = true
 		s.user = u
 		s.host = h
 
-		r := &doit.MockRunner{}
+		r := &doctl.MockRunner{}
 
 		if s.isError {
 			r.Err = errors.New("ssh forced failure")
@@ -38,7 +38,7 @@ func TestSSH_ID(t *testing.T) {
 	didFetchDroplet := false
 
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			GetFn: func(id int) (*godo.Droplet, *godo.Response, error) {
 				assert.Equal(t, id, testDroplet.ID, "droplet ids did not match")
 				didFetchDroplet = true
@@ -52,7 +52,7 @@ func TestSSH_ID(t *testing.T) {
 		c.SSHFn = ms.cmd()
 
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunSSH(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -67,7 +67,7 @@ func TestSSH_InvalidID(t *testing.T) {
 	didFetchDroplet := false
 
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			GetFn: func(id int) (*godo.Droplet, *godo.Response, error) {
 				didFetchDroplet = true
 				return nil, nil, fmt.Errorf("not here")
@@ -80,7 +80,7 @@ func TestSSH_InvalidID(t *testing.T) {
 		c.SSHFn = ms.cmd()
 
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunSSH(ns, ioutil.Discard)
 		assert.Error(t, err)
@@ -91,7 +91,7 @@ func TestSSH_Name(t *testing.T) {
 	didFetchDroplet := false
 
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			ListFn: func(*godo.ListOptions) ([]godo.Droplet, *godo.Response, error) {
 				didFetchDroplet = true
 				return testDropletList, nil, nil
@@ -104,7 +104,7 @@ func TestSSH_Name(t *testing.T) {
 		c.SSHFn = ms.cmd()
 
 		ns := "test"
-		c.Set(ns, doit.ArgDropletName, testDroplet.Name)
+		c.Set(ns, doctl.ArgDropletName, testDroplet.Name)
 
 		err := RunSSH(ns, ioutil.Discard)
 		assert.NoError(t, err)

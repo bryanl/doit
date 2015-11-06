@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
@@ -19,7 +19,7 @@ func Actions() *cobra.Command {
 
 	cmdActionGet := cmdBuilder(RunCmdActionGet, "get", "get action", writer, "g")
 	cmdActions.AddCommand(cmdActionGet)
-	addIntFlag(cmdActionGet, doit.ArgActionID, 0, "Action ID")
+	addIntFlag(cmdActionGet, doctl.ArgActionID, 0, "Action ID")
 
 	cmdActionList := cmdBuilder(RunCmdActionList, "list", "list actions", writer, "ls")
 	cmdActions.AddCommand(cmdActionList)
@@ -29,7 +29,7 @@ func Actions() *cobra.Command {
 
 // RunCmdActionList run action list.
 func RunCmdActionList(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 	f := func(opt *godo.ListOptions) ([]interface{}, *godo.Response, error) {
 		list, resp, err := client.Actions.List(opt)
 		if err != nil {
@@ -44,7 +44,7 @@ func RunCmdActionList(ns string, out io.Writer) error {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(f)
+	si, err := doctl.PaginateResp(f)
 	if err != nil {
 		return err
 	}
@@ -54,13 +54,13 @@ func RunCmdActionList(ns string, out io.Writer) error {
 		list[i] = si[i].(godo.Action)
 	}
 
-	return doit.DisplayOutput(list, out)
+	return doctl.DisplayOutput(list, out)
 }
 
 // RunCmdActionGet runs action get.
 func RunCmdActionGet(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	id := doit.DoitConfig.GetInt(ns, doit.ArgActionID)
+	client := doctl.DoctlConfig.GetGodoClient()
+	id := doctl.DoctlConfig.GetInt(ns, doctl.ArgActionID)
 	if id < 1 {
 		return errors.New("invalid action id")
 	}
@@ -70,5 +70,5 @@ func RunCmdActionGet(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(a, out)
+	return doctl.DisplayOutput(a, out)
 }

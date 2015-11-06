@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,7 +21,7 @@ var (
 
 func TestDomainsCreate(t *testing.T) {
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			CreateFn: func(req *godo.DomainCreateRequest) (*godo.Domain, *godo.Response, error) {
 				expected := &godo.DomainCreateRequest{
 					Name:      testDomain.Name,
@@ -37,9 +37,9 @@ func TestDomainsCreate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, testDomain.Name)
-		c.Set(ns, doit.ArgDomainName, testDomain.Name)
-		c.Set(ns, doit.ArgIPAddress, "127.0.0.1")
+		c.Set(ns, doctl.ArgDomainName, testDomain.Name)
+		c.Set(ns, doctl.ArgDomainName, testDomain.Name)
+		c.Set(ns, doctl.ArgIPAddress, "127.0.0.1")
 		err := RunDomainCreate(ns, ioutil.Discard)
 		assert.NoError(t, err)
 	})
@@ -49,7 +49,7 @@ func TestDomainsList(t *testing.T) {
 	domainsDisList := false
 
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			ListFn: func(opts *godo.ListOptions) ([]godo.Domain, *godo.Response, error) {
 				domainsDisList = true
 				resp := &godo.Response{
@@ -72,7 +72,7 @@ func TestDomainsList(t *testing.T) {
 
 func TestDomainsGet(t *testing.T) {
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			GetFn: func(name string) (*godo.Domain, *godo.Response, error) {
 				if got, expected := name, testDomain.Name; got != expected {
 					t.Errorf("GetFn() called with %q; expected %q", got, expected)
@@ -84,7 +84,7 @@ func TestDomainsGet(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, testDomain.Name)
+		c.Set(ns, doctl.ArgDomainName, testDomain.Name)
 		err := RunDomainGet(ns, ioutil.Discard)
 		assert.NoError(t, err)
 	})
@@ -102,7 +102,7 @@ func TestDomainsGet_DomainRequred(t *testing.T) {
 
 func TestDomainsDelete(t *testing.T) {
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			DeleteFn: func(name string) (*godo.Response, error) {
 				if got, expected := name, testDomain.Name; got != expected {
 					t.Errorf("DeleteFn() received %q; expected %q", got, expected)
@@ -114,7 +114,7 @@ func TestDomainsDelete(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, testDomain.Name)
+		c.Set(ns, doctl.ArgDomainName, testDomain.Name)
 		err := RunDomainDelete(ns, ioutil.Discard)
 		assert.NoError(t, err)
 	})
@@ -134,7 +134,7 @@ func TestRecordsList(t *testing.T) {
 	recordsDidList := false
 
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			RecordsFn: func(name string, opts *godo.ListOptions) ([]godo.DomainRecord, *godo.Response, error) {
 				recordsDidList = true
 				return testRecordList, nil, nil
@@ -144,7 +144,7 @@ func TestRecordsList(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, "example.com")
+		c.Set(ns, doctl.ArgDomainName, "example.com")
 
 		err := RunRecordList(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -164,7 +164,7 @@ func TestRecordList_RequiredArguments(t *testing.T) {
 
 func TestRecordsCreate(t *testing.T) {
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			CreateRecordFn: func(name string, req *godo.DomainRecordEditRequest) (*godo.DomainRecord, *godo.Response, error) {
 				expected := &godo.DomainRecordEditRequest{
 					Type: "A",
@@ -182,10 +182,10 @@ func TestRecordsCreate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, "example.com")
-		c.Set(ns, doit.ArgRecordType, "A")
-		c.Set(ns, doit.ArgRecordName, "foo.example.com.")
-		c.Set(ns, doit.ArgRecordData, "192.168.1.1")
+		c.Set(ns, doctl.ArgDomainName, "example.com")
+		c.Set(ns, doctl.ArgRecordType, "A")
+		c.Set(ns, doctl.ArgRecordName, "foo.example.com.")
+		c.Set(ns, doctl.ArgRecordData, "192.168.1.1")
 
 		err := RunRecordCreate(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -204,7 +204,7 @@ func TestRecordCreate_RequiredArguments(t *testing.T) {
 
 func TestRecordsDelete(t *testing.T) {
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			DeleteRecordFn: func(name string, id int) (*godo.Response, error) {
 				if got, expected := name, "example.com"; got != expected {
 					t.Errorf("CreateFn domain name = %q; expected %q", got, expected)
@@ -219,8 +219,8 @@ func TestRecordsDelete(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, "example.com")
-		c.Set(ns, doit.ArgRecordID, 1)
+		c.Set(ns, doctl.ArgDomainName, "example.com")
+		c.Set(ns, doctl.ArgRecordID, 1)
 		err := RunRecordDelete(ns, ioutil.Discard)
 		assert.NoError(t, err)
 	})
@@ -228,7 +228,7 @@ func TestRecordsDelete(t *testing.T) {
 
 func TestRecordsUpdate(t *testing.T) {
 	client := &godo.Client{
-		Domains: &doit.DomainsServiceMock{
+		Domains: &doctl.DomainsServiceMock{
 			EditRecordFn: func(name string, id int, req *godo.DomainRecordEditRequest) (*godo.DomainRecord, *godo.Response, error) {
 				expected := &godo.DomainRecordEditRequest{
 					Type: "A",
@@ -247,11 +247,11 @@ func TestRecordsUpdate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDomainName, "example.com")
-		c.Set(ns, doit.ArgRecordID, 1)
-		c.Set(ns, doit.ArgRecordType, "A")
-		c.Set(ns, doit.ArgRecordName, "foo.example.com.")
-		c.Set(ns, doit.ArgRecordData, "192.168.1.1")
+		c.Set(ns, doctl.ArgDomainName, "example.com")
+		c.Set(ns, doctl.ArgRecordID, 1)
+		c.Set(ns, doctl.ArgRecordType, "A")
+		c.Set(ns, doctl.ArgRecordName, "foo.example.com.")
+		c.Set(ns, doctl.ArgRecordData, "192.168.1.1")
 
 		err := RunRecordUpdate(ns, ioutil.Discard)
 		assert.NoError(t, err)

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/spf13/cobra"
 )
@@ -20,16 +20,16 @@ func FloatingIP() *cobra.Command {
 
 	cmdFloatingIPCreate := cmdBuilder(RunFloatingIPCreate, "create", "create a floating IP", writer, "c")
 	cmd.AddCommand(cmdFloatingIPCreate)
-	addStringFlag(cmdFloatingIPCreate, doit.ArgRegionSlug, "", "Region where to create the floating IP.")
-	addIntFlag(cmdFloatingIPCreate, doit.ArgDropletID, 0, "ID of the droplet to assign the IP to. (Optional)")
+	addStringFlag(cmdFloatingIPCreate, doctl.ArgRegionSlug, "", "Region where to create the floating IP.")
+	addIntFlag(cmdFloatingIPCreate, doctl.ArgDropletID, 0, "ID of the droplet to assign the IP to. (Optional)")
 
 	cmdFloatingIPGet := cmdBuilder(RunFloatingIPGet, "get", "get the details of a floating IP", writer, "g")
 	cmd.AddCommand(cmdFloatingIPGet)
-	addStringFlag(cmdFloatingIPGet, doit.ArgIPAddress, "", "IP address of the floating IP")
+	addStringFlag(cmdFloatingIPGet, doctl.ArgIPAddress, "", "IP address of the floating IP")
 
 	cmdFloatingIPDelete := cmdBuilder(RunFloatingIPDelete, "delete", "delete a floating IP address", writer, "d")
 	cmd.AddCommand(cmdFloatingIPDelete)
-	addStringFlag(cmdFloatingIPDelete, doit.ArgIPAddress, "", "IP address of the floating IP")
+	addStringFlag(cmdFloatingIPDelete, doctl.ArgIPAddress, "", "IP address of the floating IP")
 
 	cmdFloatingIPList := cmdBuilder(RunFloatingIPList, "list", "list all floating IP addresses", writer, "ls")
 	cmd.AddCommand(cmdFloatingIPList)
@@ -39,22 +39,22 @@ func FloatingIP() *cobra.Command {
 
 // RunFloatingIPCreate runs floating IP create.
 func RunFloatingIPCreate(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 	req := &godo.FloatingIPCreateRequest{
-		Region:    doit.DoitConfig.GetString(ns, doit.ArgRegionSlug),
-		DropletID: doit.DoitConfig.GetInt(ns, doit.ArgDropletID),
+		Region:    doctl.DoctlConfig.GetString(ns, doctl.ArgRegionSlug),
+		DropletID: doctl.DoctlConfig.GetInt(ns, doctl.ArgDropletID),
 	}
 	ip, _, err := client.FloatingIPs.Create(req)
 	if err != nil {
 		return err
 	}
-	return doit.DisplayOutput(ip, out)
+	return doctl.DisplayOutput(ip, out)
 }
 
 // RunFloatingIPGet retrieves a floating IP's details.
 func RunFloatingIPGet(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	ip := doit.DoitConfig.GetString(ns, doit.ArgIPAddress)
+	client := doctl.DoctlConfig.GetGodoClient()
+	ip := doctl.DoctlConfig.GetString(ns, doctl.ArgIPAddress)
 
 	if len(ip) < 1 {
 		return errors.New("invalid ip address")
@@ -65,20 +65,20 @@ func RunFloatingIPGet(ns string, out io.Writer) error {
 		return err
 	}
 
-	return doit.DisplayOutput(d, out)
+	return doctl.DisplayOutput(d, out)
 }
 
 // RunFloatingIPDelete runs floating IP delete.
 func RunFloatingIPDelete(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
-	ip := doit.DoitConfig.GetString(ns, doit.ArgIPAddress)
+	client := doctl.DoctlConfig.GetGodoClient()
+	ip := doctl.DoctlConfig.GetString(ns, doctl.ArgIPAddress)
 	_, err := client.FloatingIPs.Delete(ip)
 	return err
 }
 
 // RunFloatingIPList runs floating IP create.
 func RunFloatingIPList(ns string, out io.Writer) error {
-	client := doit.DoitConfig.GetGodoClient()
+	client := doctl.DoctlConfig.GetGodoClient()
 
 	f := func(opt *godo.ListOptions) ([]interface{}, *godo.Response, error) {
 		list, resp, err := client.FloatingIPs.List(opt)
@@ -94,7 +94,7 @@ func RunFloatingIPList(ns string, out io.Writer) error {
 		return si, resp, err
 	}
 
-	si, err := doit.PaginateResp(f)
+	si, err := doctl.PaginateResp(f)
 	if err != nil {
 		return err
 	}
@@ -104,5 +104,5 @@ func RunFloatingIPList(ns string, out io.Writer) error {
 		list[i] = si[i].(godo.FloatingIP)
 	}
 
-	return doit.DisplayOutput(list, out)
+	return doctl.DisplayOutput(list, out)
 }

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ func TestKeysList(t *testing.T) {
 	didList := false
 
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			ListFn: func(opts *godo.ListOptions) ([]godo.Key, *godo.Response, error) {
 				didList = true
 
@@ -44,7 +44,7 @@ func TestKeysList(t *testing.T) {
 
 func TestKeysGetByID(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			GetByIDFn: func(id int) (*godo.Key, *godo.Response, error) {
 				assert.Equal(t, id, testKey.ID)
 				return &testKey, nil, nil
@@ -58,7 +58,7 @@ func TestKeysGetByID(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKey, "1")
+		c.Set(ns, doctl.ArgKey, "1")
 
 		RunKeyGet(ns, ioutil.Discard)
 	})
@@ -66,7 +66,7 @@ func TestKeysGetByID(t *testing.T) {
 
 func TestKeysGetByFingerprint(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			GetByFingerprintFn: func(fingerprint string) (*godo.Key, *godo.Response, error) {
 				assert.Equal(t, fingerprint, testKey.Fingerprint)
 				return &testKey, nil, nil
@@ -80,7 +80,7 @@ func TestKeysGetByFingerprint(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKey, testKey.Fingerprint)
+		c.Set(ns, doctl.ArgKey, testKey.Fingerprint)
 
 		RunKeyGet(ns, ioutil.Discard)
 	})
@@ -88,7 +88,7 @@ func TestKeysGetByFingerprint(t *testing.T) {
 
 func TestKeysCreate(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			CreateFn: func(req *godo.KeyCreateRequest) (*godo.Key, *godo.Response, error) {
 				expected := &godo.KeyCreateRequest{
 					Name:      "the key",
@@ -102,8 +102,8 @@ func TestKeysCreate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKeyName, "the key")
-		c.Set(ns, doit.ArgKeyPublicKey, "fingerprint")
+		c.Set(ns, doctl.ArgKeyName, "the key")
+		c.Set(ns, doctl.ArgKeyPublicKey, "fingerprint")
 
 		RunKeyCreate(ns, ioutil.Discard)
 	})
@@ -111,7 +111,7 @@ func TestKeysCreate(t *testing.T) {
 
 func TestKeysDeleteByID(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			DeleteByIDFn: func(id int) (*godo.Response, error) {
 				assert.Equal(t, id, 1)
 				return nil, nil
@@ -125,7 +125,7 @@ func TestKeysDeleteByID(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKey, "1")
+		c.Set(ns, doctl.ArgKey, "1")
 
 		RunKeyDelete(ns, ioutil.Discard)
 	})
@@ -133,7 +133,7 @@ func TestKeysDeleteByID(t *testing.T) {
 
 func TestKeysDeleteByFingerprint(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			DeleteByFingerprintFn: func(fingerprint string) (*godo.Response, error) {
 				assert.Equal(t, fingerprint, "fingerprint")
 				return nil, nil
@@ -147,7 +147,7 @@ func TestKeysDeleteByFingerprint(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKey, "fingerprint")
+		c.Set(ns, doctl.ArgKey, "fingerprint")
 
 		RunKeyDelete(ns, ioutil.Discard)
 	})
@@ -156,7 +156,7 @@ func TestKeysDeleteByFingerprint(t *testing.T) {
 
 func TestKeysUpdateByID(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			UpdateByIDFn: func(id int, req *godo.KeyUpdateRequest) (*godo.Key, *godo.Response, error) {
 				expected := &godo.KeyUpdateRequest{
 					Name: "the key",
@@ -174,8 +174,8 @@ func TestKeysUpdateByID(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKey, "1")
-		c.Set(ns, doit.ArgKeyName, "the key")
+		c.Set(ns, doctl.ArgKey, "1")
+		c.Set(ns, doctl.ArgKeyName, "the key")
 
 		RunKeyUpdate(ns, ioutil.Discard)
 	})
@@ -184,7 +184,7 @@ func TestKeysUpdateByID(t *testing.T) {
 
 func TestKeysUpdateByFingerprint(t *testing.T) {
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			UpdateByFingerprintFn: func(fingerprint string, req *godo.KeyUpdateRequest) (*godo.Key, *godo.Response, error) {
 				expected := &godo.KeyUpdateRequest{
 					Name: "the key",
@@ -202,8 +202,8 @@ func TestKeysUpdateByFingerprint(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKey, "fingerprint")
-		c.Set(ns, doit.ArgKeyName, "the key")
+		c.Set(ns, doctl.ArgKey, "fingerprint")
+		c.Set(ns, doctl.ArgKeyName, "the key")
 
 		RunKeyUpdate(ns, ioutil.Discard)
 	})
@@ -218,7 +218,7 @@ func TestSSHPublicKeyImport(t *testing.T) {
 	defer os.Remove(path)
 
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			CreateFn: func(req *godo.KeyCreateRequest) (*godo.Key, *godo.Response, error) {
 				expected := &godo.KeyCreateRequest{
 					Name:      "testkey",
@@ -232,8 +232,8 @@ func TestSSHPublicKeyImport(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKeyPublicKey, "fingerprint")
-		c.Set(ns, doit.ArgKeyPublicKeyFile, path)
+		c.Set(ns, doctl.ArgKeyPublicKey, "fingerprint")
+		c.Set(ns, doctl.ArgKeyPublicKeyFile, path)
 
 		RunKeyImport(ns, ioutil.Discard)
 	})
@@ -248,7 +248,7 @@ func TestSSHPublicKeyImportWithName(t *testing.T) {
 	defer os.Remove(path)
 
 	client := &godo.Client{
-		Keys: &doit.KeysServiceMock{
+		Keys: &doctl.KeysServiceMock{
 			CreateFn: func(req *godo.KeyCreateRequest) (*godo.Key, *godo.Response, error) {
 				expected := &godo.KeyCreateRequest{
 					Name:      "custom",
@@ -262,8 +262,8 @@ func TestSSHPublicKeyImportWithName(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgKeyName, "custom")
-		c.Set(ns, doit.ArgKeyPublicKeyFile, path)
+		c.Set(ns, doctl.ArgKeyName, "custom")
+		c.Set(ns, doctl.ArgKeyPublicKeyFile, path)
 
 		RunKeyImport(ns, ioutil.Discard)
 	})

@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +13,7 @@ func TestFloatingIPsList(t *testing.T) {
 	didRun := false
 
 	client := &godo.Client{
-		FloatingIPs: &doit.FloatingIPsServiceMock{
+		FloatingIPs: &doctl.FloatingIPsServiceMock{
 			ListFn: func(opts *godo.ListOptions) ([]godo.FloatingIP, *godo.Response, error) {
 				didRun = true
 
@@ -38,7 +38,7 @@ func TestFloatingIPsList(t *testing.T) {
 
 func TestFloatingIPsGet(t *testing.T) {
 	client := &godo.Client{
-		FloatingIPs: &doit.FloatingIPsServiceMock{
+		FloatingIPs: &doctl.FloatingIPsServiceMock{
 			GetFn: func(ip string) (*godo.FloatingIP, *godo.Response, error) {
 				assert.Equal(t, "127.0.0.1", ip)
 				return &testFloatingIP, nil, nil
@@ -48,7 +48,7 @@ func TestFloatingIPsGet(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgIPAddress, "127.0.0.1")
+		c.Set(ns, doctl.ArgIPAddress, "127.0.0.1")
 
 		RunFloatingIPGet(ns, ioutil.Discard)
 	})
@@ -56,7 +56,7 @@ func TestFloatingIPsGet(t *testing.T) {
 
 func TestFloatingIPsCreate(t *testing.T) {
 	client := &godo.Client{
-		FloatingIPs: &doit.FloatingIPsServiceMock{
+		FloatingIPs: &doctl.FloatingIPsServiceMock{
 			CreateFn: func(req *godo.FloatingIPCreateRequest) (*godo.FloatingIP, *godo.Response, error) {
 				assert.Equal(t, "dev0", req.Region)
 				assert.Equal(t, 1, req.DropletID)
@@ -67,8 +67,8 @@ func TestFloatingIPsCreate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgRegionSlug, "dev0")
-		c.Set(ns, doit.ArgDropletID, 1)
+		c.Set(ns, doctl.ArgRegionSlug, "dev0")
+		c.Set(ns, doctl.ArgDropletID, 1)
 
 		RunFloatingIPCreate(ns, ioutil.Discard)
 	})
@@ -76,7 +76,7 @@ func TestFloatingIPsCreate(t *testing.T) {
 
 func TestFloatingIPsDelete(t *testing.T) {
 	client := &godo.Client{
-		FloatingIPs: &doit.FloatingIPsServiceMock{
+		FloatingIPs: &doctl.FloatingIPsServiceMock{
 			DeleteFn: func(ip string) (*godo.Response, error) {
 				assert.Equal(t, "127.0.0.1", ip)
 				return nil, nil
@@ -86,7 +86,7 @@ func TestFloatingIPsDelete(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgIPAddress, "127.0.0.1")
+		c.Set(ns, doctl.ArgIPAddress, "127.0.0.1")
 
 		RunFloatingIPDelete(ns, ioutil.Discard)
 	})

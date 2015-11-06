@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +14,7 @@ func TestImagesList(t *testing.T) {
 	didRun := false
 
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			ListFn: func(opts *godo.ListOptions) ([]godo.Image, *godo.Response, error) {
 				didRun = true
 
@@ -38,7 +38,7 @@ func TestImagesListDistribution(t *testing.T) {
 	didRun := false
 
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			ListDistributionFn: func(opts *godo.ListOptions) ([]godo.Image, *godo.Response, error) {
 				didRun = true
 
@@ -63,7 +63,7 @@ func TestImagesListApplication(t *testing.T) {
 	didRun := false
 
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			ListApplicationFn: func(opts *godo.ListOptions) ([]godo.Image, *godo.Response, error) {
 				didRun = true
 
@@ -88,7 +88,7 @@ func TestImagesListUser(t *testing.T) {
 	didRun := false
 
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			ListUserFn: func(opts *godo.ListOptions) ([]godo.Image, *godo.Response, error) {
 				didRun = true
 
@@ -111,7 +111,7 @@ func TestImagesListUser(t *testing.T) {
 
 func TestImagesGetByID(t *testing.T) {
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			GetByIDFn: func(id int) (*godo.Image, *godo.Response, error) {
 				assert.Equal(t, id, testImage.ID, "image id not equal")
 				return &testImage, nil, nil
@@ -125,7 +125,7 @@ func TestImagesGetByID(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgImage, testImage.ID)
+		c.Set(ns, doctl.ArgImage, testImage.ID)
 
 		RunImagesGet(ns, ioutil.Discard)
 	})
@@ -133,7 +133,7 @@ func TestImagesGetByID(t *testing.T) {
 
 func TestImagesGetBySlug(t *testing.T) {
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			GetByIDFn: func(id int) (*godo.Image, *godo.Response, error) {
 				t.Error("should not try to load id")
 				return nil, nil, nil
@@ -147,7 +147,7 @@ func TestImagesGetBySlug(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgImage, testImage.Slug)
+		c.Set(ns, doctl.ArgImage, testImage.Slug)
 
 		RunImagesGet(ns, ioutil.Discard)
 	})
@@ -155,7 +155,7 @@ func TestImagesGetBySlug(t *testing.T) {
 
 func TestImagesNoID(t *testing.T) {
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			GetByIDFn: func(id int) (*godo.Image, *godo.Response, error) {
 				t.Error("should not try to load id")
 				return nil, nil, fmt.Errorf("not here")
@@ -175,7 +175,7 @@ func TestImagesNoID(t *testing.T) {
 
 func TestImagesUpdate(t *testing.T) {
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			UpdateFn: func(id int, req *godo.ImageUpdateRequest) (*godo.Image, *godo.Response, error) {
 				expected := &godo.ImageUpdateRequest{Name: "new-name"}
 				assert.Equal(t, req, expected)
@@ -188,8 +188,8 @@ func TestImagesUpdate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgImageID, testImage.ID)
-		c.Set(ns, doit.ArgImageName, "new-name")
+		c.Set(ns, doctl.ArgImageID, testImage.ID)
+		c.Set(ns, doctl.ArgImageName, "new-name")
 
 		RunImagesUpdate(ns, ioutil.Discard)
 	})
@@ -197,7 +197,7 @@ func TestImagesUpdate(t *testing.T) {
 
 func TestImagesDelete(t *testing.T) {
 	client := &godo.Client{
-		Images: &doit.ImagesServiceMock{
+		Images: &doctl.ImagesServiceMock{
 			DeleteFn: func(id int) (*godo.Response, error) {
 				assert.Equal(t, id, testImage.ID)
 				return nil, nil
@@ -207,7 +207,7 @@ func TestImagesDelete(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgImageID, testImage.ID)
+		c.Set(ns, doctl.ArgImageID, testImage.ID)
 
 		RunImagesDelete(ns, ioutil.Discard)
 	})

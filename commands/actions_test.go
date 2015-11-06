@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ func TestActionList(t *testing.T) {
 	actionDidList := false
 
 	client := &godo.Client{
-		Actions: &doit.ActionsServiceMock{
+		Actions: &doctl.ActionsServiceMock{
 			ListFn: func(opts *godo.ListOptions) ([]godo.Action, *godo.Response, error) {
 				actionDidList = true
 				resp := &godo.Response{
@@ -46,7 +46,7 @@ func TestActionList(t *testing.T) {
 
 func TestActionGet(t *testing.T) {
 	client := &godo.Client{
-		Actions: &doit.ActionsServiceMock{
+		Actions: &doctl.ActionsServiceMock{
 			GetFn: func(id int) (*godo.Action, *godo.Response, error) {
 				if got, expected := id, testAction.ID; got != expected {
 					t.Errorf("GetFn() called with %d; expected %d", got, expected)

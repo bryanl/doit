@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/bryanl/doit"
+	"github.com/digitalocean/doctl"
 	"github.com/digitalocean/godo"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ var (
 
 func TestDropletActionList(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			ActionsFn: func(id int, opts *godo.ListOptions) ([]godo.Action, *godo.Response, error) {
 				assert.Equal(t, 1, id)
 
@@ -36,7 +36,7 @@ func TestDropletActionList(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, 1)
+		c.Set(ns, doctl.ArgDropletID, 1)
 		err := RunDropletActions(ns, ioutil.Discard)
 		assert.NoError(t, err)
 	})
@@ -44,7 +44,7 @@ func TestDropletActionList(t *testing.T) {
 
 func TestDropletBackupList(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			BackupsFn: func(id int, opts *godo.ListOptions) ([]godo.Image, *godo.Response, error) {
 				assert.Equal(t, 1, id)
 
@@ -60,7 +60,7 @@ func TestDropletBackupList(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, 1)
+		c.Set(ns, doctl.ArgDropletID, 1)
 		err := RunDropletBackups(ns, ioutil.Discard)
 		assert.NoError(t, err)
 	})
@@ -68,7 +68,7 @@ func TestDropletBackupList(t *testing.T) {
 
 func TestDropletCreate(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			CreateFn: func(cr *godo.DropletCreateRequest) (*godo.Droplet, *godo.Response, error) {
 				expected := &godo.DropletCreateRequest{
 					Name:     "droplet",
@@ -88,11 +88,11 @@ func TestDropletCreate(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletName, "droplet")
-		c.Set(ns, doit.ArgRegionSlug, "dev0")
-		c.Set(ns, doit.ArgSizeSlug, "1gb")
-		c.Set(ns, doit.ArgImage, "image")
-		c.Set(ns, doit.ArgUserData, "#cloud-config")
+		c.Set(ns, doctl.ArgDropletName, "droplet")
+		c.Set(ns, doctl.ArgRegionSlug, "dev0")
+		c.Set(ns, doctl.ArgSizeSlug, "1gb")
+		c.Set(ns, doctl.ArgImage, "image")
+		c.Set(ns, doctl.ArgUserData, "#cloud-config")
 
 		err := RunDropletCreate(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -106,7 +106,7 @@ func TestDropletCreateUserDataFile(t *testing.T) {
 	}
 
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			CreateFn: func(cr *godo.DropletCreateRequest) (*godo.Droplet, *godo.Response, error) {
 				expected := &godo.DropletCreateRequest{
 					Name:     "droplet",
@@ -127,11 +127,11 @@ func TestDropletCreateUserDataFile(t *testing.T) {
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
 
-		c.Set(ns, doit.ArgDropletName, "droplet")
-		c.Set(ns, doit.ArgRegionSlug, "dev0")
-		c.Set(ns, doit.ArgSizeSlug, "1gb")
-		c.Set(ns, doit.ArgImage, "image")
-		c.Set(ns, doit.ArgUserDataFile, "../testdata/cloud-config.yml")
+		c.Set(ns, doctl.ArgDropletName, "droplet")
+		c.Set(ns, doctl.ArgRegionSlug, "dev0")
+		c.Set(ns, doctl.ArgSizeSlug, "1gb")
+		c.Set(ns, doctl.ArgImage, "image")
+		c.Set(ns, doctl.ArgUserDataFile, "../testdata/cloud-config.yml")
 
 		err := RunDropletCreate(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -140,7 +140,7 @@ func TestDropletCreateUserDataFile(t *testing.T) {
 
 func TestDropletDelete(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			DeleteFn: func(id int) (*godo.Response, error) {
 				assert.Equal(t, id, testDroplet.ID, "droplet ids did not match")
 				return nil, nil
@@ -150,7 +150,7 @@ func TestDropletDelete(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunDropletDelete(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -159,7 +159,7 @@ func TestDropletDelete(t *testing.T) {
 
 func TestDropletGet(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			GetFn: func(id int) (*godo.Droplet, *godo.Response, error) {
 				assert.Equal(t, id, testDroplet.ID, "droplet ids did not match")
 				return &testDroplet, nil, nil
@@ -169,7 +169,7 @@ func TestDropletGet(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunDropletGet(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -178,7 +178,7 @@ func TestDropletGet(t *testing.T) {
 
 func TestDropletKernelList(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			KernelsFn: func(id int, opts *godo.ListOptions) ([]godo.Kernel, *godo.Response, error) {
 				if got, expected := id, 1; got != expected {
 					t.Errorf("KernelsFn() id = %d; expected %d", got, expected)
@@ -196,7 +196,7 @@ func TestDropletKernelList(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunDropletKernels(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -206,7 +206,7 @@ func TestDropletKernelList(t *testing.T) {
 func TestDropletNeighbors(t *testing.T) {
 	didRun := false
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			NeighborsFn: func(id int) ([]godo.Droplet, *godo.Response, error) {
 				didRun = true
 				assert.Equal(t, id, 1)
@@ -223,7 +223,7 @@ func TestDropletNeighbors(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunDropletNeighbors(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -233,7 +233,7 @@ func TestDropletNeighbors(t *testing.T) {
 
 func TestDropletSnapshotList(t *testing.T) {
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			SnapshotsFn: func(id int, opts *godo.ListOptions) ([]godo.Image, *godo.Response, error) {
 				assert.Equal(t, id, 1)
 
@@ -249,7 +249,7 @@ func TestDropletSnapshotList(t *testing.T) {
 
 	withTestClient(client, func(c *TestConfig) {
 		ns := "test"
-		c.Set(ns, doit.ArgDropletID, testDroplet.ID)
+		c.Set(ns, doctl.ArgDropletID, testDroplet.ID)
 
 		err := RunDropletSnapshots(ns, ioutil.Discard)
 		assert.NoError(t, err)
@@ -259,7 +259,7 @@ func TestDropletSnapshotList(t *testing.T) {
 func TestDropletsList(t *testing.T) {
 	didRun := false
 	client := &godo.Client{
-		Droplets: &doit.DropletsServiceMock{
+		Droplets: &doctl.DropletsServiceMock{
 			ListFn: func(opts *godo.ListOptions) ([]godo.Droplet, *godo.Response, error) {
 				didRun = true
 				resp := &godo.Response{

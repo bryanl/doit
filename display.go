@@ -1,4 +1,4 @@
-package doit
+package doctl
 
 import (
 	"bytes"
@@ -12,13 +12,13 @@ import (
 
 const (
 	// NSRoot is a configuration key that signifies this value is at the root.
-	NSRoot = "doit"
+	NSRoot = "doctl"
 )
 
 // DisplayOutput displays an object or group of objects to a user. It
 // checks to see what the output type should be.
 func DisplayOutput(item interface{}, out io.Writer) error {
-	output := DoitConfig.GetString(NSRoot, "output")
+	output := DoctlConfig.GetString(NSRoot, "output")
 	if output == "" {
 		output = "text"
 	}
